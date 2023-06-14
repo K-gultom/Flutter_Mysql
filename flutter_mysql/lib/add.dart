@@ -18,7 +18,7 @@ class _AddState extends State<Add> {
   Future _onSubmit() async {
     try {
       return await http.post(
-          Uri.parse("http://192.168.1.49/note_app/create.php"),
+          Uri.parse("http://192.168.1.17/note_app/create.php"),
           body: {
             "title": title.text,
             "content": content.text,
@@ -86,7 +86,7 @@ class _AddState extends State<Add> {
               ),
               const SizedBox(height: 5),
               TextFormField(
-                controller: title,
+                controller: content,
                 keyboardType: TextInputType.multiline,
                 minLines: 5,
                 maxLines: null,
