@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_mysql/add.dart';
+import 'package:flutter_mysql/edit.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -63,7 +64,7 @@ class HomeState extends State<Home> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => Edit(
-                                  id: _get[index]['id'],
+                                  // id: _get[index]['id'],
                                 )));
                   },
                   child: Card(
