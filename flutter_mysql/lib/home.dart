@@ -25,7 +25,7 @@ class HomeState extends State<Home> {
   ];
 
   @override
-  void initstate() {
+  void initState() {
     super.initState();
     _getData();
   }
@@ -33,7 +33,7 @@ class HomeState extends State<Home> {
   Future _getData() async {
     try {
       final response = await http
-          .get(Uri.parse("http://192.168.1.49/note_app/list.php"));
+          .get(Uri.parse("http://192.168.1.17/note_app/list.php"));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -64,7 +64,7 @@ class HomeState extends State<Home> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => Edit(
-                                  // id: _get[index]['id'],
+                                   id: _get[index]['id'],
                                 )));
                   },
                   child: Card(
