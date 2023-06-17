@@ -3,7 +3,7 @@ class Note {
   final String title;
   final String content;
   final String date;
-
+  
   Note({
     required this.id,
     required this.title,
