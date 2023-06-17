@@ -1,35 +1,55 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_mysql/models/note.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:flutter_mysql/provider/note_provider.dart';
 
 class Add extends StatefulWidget {
-  const Add({super.key});
+  const Add({Key? key}) : super(key: key);
+
   @override
   State<Add> createState() => _AddState();
 }
 
 class _AddState extends State<Add> {
-  final _formkey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  //inisial field
-  var title = TextEditingController();
-  var content = TextEditingController();
+  // Inisialisasi controller
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
 
-  Future _onSubmit() async {
-    try {
-      return await http.post(
+  Future<void> _onSubmit() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final noteProvider = Provider.of<NoteProvider>(context, listen: false);
+
+        final newNote = Note(
+          id: '',
+          title: _titleController.text,
+          content: _contentController.text,
+          date: '',
+        );
+
+        // Mengirim permintaan POST ke server
+        final response = await http.post(
           Uri.parse("http://192.168.1.17/note_app/create.php"),
           body: {
-            "title": title.text,
-            "content": content.text,
-          }).then((value) {
-        var data = jsonDecode(value.body);
+            "title": newNote.title,
+            "content": newNote.content,
+          },
+        );
+
+        final data = jsonDecode(response.body);
         print(data["message"]);
-        Navigator.of(context)
-            .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
-      });
-    } catch (e) {
-      print(e);
+
+        // Menambahkan catatan ke dalam provider setelah berhasil dikirim
+        noteProvider.addNote(newNote);
+
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      } catch (e) {
+        print(e);
+      }
     }
   }
 
@@ -40,7 +60,7 @@ class _AddState extends State<Add> {
         title: const Text("Create New Note"),
       ),
       body: Form(
-        key: _formkey,
+        key: _formKey,
         child: Container(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -56,14 +76,15 @@ class _AddState extends State<Add> {
               ),
               const SizedBox(height: 5),
               TextFormField(
-                controller: title,
+                controller: _titleController,
                 decoration: InputDecoration(
-                    hintText: "Type Note Title",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    fillColor: Colors.white,
-                    filled: true),
+                  hintText: "Type Note Title",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -86,17 +107,18 @@ class _AddState extends State<Add> {
               ),
               const SizedBox(height: 5),
               TextFormField(
-                controller: content,
+                controller: _contentController,
                 keyboardType: TextInputType.multiline,
                 minLines: 5,
                 maxLines: null,
                 decoration: InputDecoration(
-                    hintText: "Type Note Content",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    fillColor: Colors.white,
-                    filled: true),
+                  hintText: "Type Note Content",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -119,11 +141,7 @@ class _AddState extends State<Add> {
                   "Submit",
                   style: TextStyle(color: Colors.white),
                 ),
-                onPressed: () {
-                  if (_formkey.currentState!.validate()) {
-                    _onSubmit();
-                  }
-                },
+                onPressed: _onSubmit,
               ),
             ],
           ),
