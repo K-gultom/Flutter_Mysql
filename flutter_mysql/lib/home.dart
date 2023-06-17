@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart' as http;
@@ -7,13 +6,14 @@ import 'package:flutter_mysql/add.dart';
 import 'package:flutter_mysql/edit.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  const Home({Key? key});
+  
   @override
   HomeState createState() => HomeState();
 }
 
 class HomeState extends State<Home> {
-  List _get = [];
+  List<Map<String, dynamic>> _get = [];
 
   final _lightColors = [
     Colors.amber.shade300,
@@ -27,19 +27,18 @@ class HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _getData();
+    _getNotes();
   }
 
-  Future _getData() async {
+  Future<void> _getNotes() async {
     try {
-      final response = await http
-          .get(Uri.parse("http://192.168.1.17/note_app/list.php"));
+      final response = await http.get(Uri.parse("http://192.168.1.17/note_app/list.php"));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
         setState(() {
-          _get = data;
+          _get = List<Map<String, dynamic>>.from(data);
         });
       }
     } catch (e) {
@@ -53,7 +52,7 @@ class HomeState extends State<Home> {
       appBar: AppBar(
         title: const Text('Note List'),
       ),
-      body: _get.length != 0
+      body: _get.isNotEmpty
           ? MasonryGridView.count(
               crossAxisCount: 2,
               itemCount: _get.length,
@@ -61,17 +60,18 @@ class HomeState extends State<Home> {
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Edit(
-                                   id: _get[index]['id'],
-                                )));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Edit(
+                          id: _get[index]['id'],
+                        ),
+                      ),
+                    );
                   },
                   child: Card(
                     color: _lightColors[index % _lightColors.length],
                     child: Container(
-                      constraints:
-                          BoxConstraints(minHeight: (index % 2 + 1) * 85),
+                      constraints: BoxConstraints(minHeight: (index % 2 + 1) * 85),
                       padding: const EdgeInsets.all(15),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +94,8 @@ class HomeState extends State<Home> {
                     ),
                   ),
                 );
-              })
+              },
+            )
           : const Center(
               child: Text(
                 "No Data Available",
@@ -110,7 +111,9 @@ class HomeState extends State<Home> {
         child: const Icon(Icons.add),
         onPressed: () {
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => const Add()));
+            context,
+            MaterialPageRoute(builder: (context) => const Add()),
+          );
         },
       ),
     );
